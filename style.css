@@ -227,6 +227,12 @@ h1 {
   font-size: 0.82em;
 }
 
+.credit {
+  margin-left: auto;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
 .meter-foot a {
   color: inherit;
   text-decoration: underline;
