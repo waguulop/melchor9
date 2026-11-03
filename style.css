@@ -1,0 +1,175 @@
+@font-face {
+  font-family: "Chango";
+  src: url("assets/fonts/chango.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("assets/fonts/barlow-condensed-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  --beer: #f0a30a;
+  --beer-deep: #c96f04;
+  --malt: #2a1204;
+  --foam: #fff6df;
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--beer);
+  color: var(--malt);
+  font: 600 clamp(1.05rem, 2.6vh, 1.6rem)/1.15 "Barlow Condensed", sans-serif;
+}
+
+::selection { background: var(--malt); color: var(--foam); }
+
+.floaters {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.floaters img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 12px;
+  will-change: transform;
+}
+
+.page {
+  position: relative;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(4px, 1vh, 12px);
+  padding: clamp(12px, 2.5vh, 28px) clamp(16px, 4vw, 56px) 0;
+}
+
+h1 {
+  font: 400 min(6.4vw, 12vh)/1.02 "Chango", "Barlow Condensed", sans-serif;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--foam);
+  -webkit-text-stroke: 0.14em var(--malt);
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0.06em 0.05em rgb(42 18 4 / 0.45));
+}
+
+.stage {
+  position: relative;
+  min-height: 0;
+}
+.stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.stage .fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.meter {
+  --gutter: clamp(16px, 4vw, 56px);
+  margin-inline: calc(var(--gutter) * -1);
+  padding: clamp(8px, 1.6vh, 16px) max(var(--gutter), calc((100% - 1120px) / 2)) clamp(10px, 1.8vh, 18px);
+  display: grid;
+  gap: 6px;
+  background: var(--malt);
+  color: var(--foam);
+  box-shadow: 0 -6px 18px rgb(42 18 4 / 0.35);
+}
+
+.meter-labels,
+.meter-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 24px;
+  font-variant-numeric: tabular-nums;
+}
+
+.meter-labels strong {
+  font: 400 1.5em/1 "Chango", sans-serif;
+}
+
+.current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.current img {
+  width: 2em;
+  height: 2em;
+  object-fit: contain;
+}
+
+.track {
+  position: relative;
+  height: clamp(26px, 5vh, 48px);
+  background: #52290c;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.fill {
+  position: relative;
+  height: 100%;
+  min-width: 6px;
+  background: var(--beer);
+  box-shadow: inset -5px 0 0 var(--foam);
+  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tick {
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  width: 2px;
+  background: rgb(255 246 223 / 0.3);
+}
+
+.meter-foot {
+  font-size: 0.82em;
+}
+
+.meter-foot a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 2px;
+}
+.meter-foot a:hover { color: var(--beer); }
+.meter-foot a:focus-visible {
+  outline: 3px solid var(--beer);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+#status:not(:empty)::before { content: " · "; }
+
+@media (max-width: 640px) {
+  h1 { font-size: min(13.5vw, 8.4vh); }
+  body { font-size: 1.05rem; }
+  .meter-labels strong { font-size: 1.15em; }
+  .missing { white-space: nowrap; }
+  .meter-labels { row-gap: 4px; }
+}
