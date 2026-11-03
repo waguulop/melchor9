@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const TARGET_LP = 1000;
+const TWITCH_CHANNEL = 'melchor9';
 const SKINS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 29, 39];
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const random = (min, max) => min + Math.random() * (max - min);
@@ -33,6 +34,18 @@ async function loadRank() {
   } catch {
     // Sin datos de OP.GG se queda el último valor conocido que ya trae el HTML.
   }
+}
+
+/* ---------- Directo de Twitch ---------- */
+
+function createStream() {
+  const player = document.createElement('iframe');
+  // Twitch exige que "parent" coincida con el dominio que incrusta el reproductor.
+  const params = new URLSearchParams({ channel: TWITCH_CHANNEL, parent: location.hostname, muted: 'true' });
+  player.src = `https://player.twitch.tv/?${params}`;
+  player.title = `Directo de ${TWITCH_CHANNEL} en Twitch`;
+  player.allowFullscreen = true;
+  byId('stream').append(player);
 }
 
 /* ---------- Imágenes borrosas orbitando ---------- */
@@ -115,7 +128,8 @@ function createGragas() {
     const halfFov = THREE.MathUtils.degToRad(camera.fov / 2);
     const forHeight = (fitHeight / 2) / Math.tan(halfFov);
     const forWidth = fitRadius / (Math.tan(halfFov) * camera.aspect);
-    camera.position.set(0, 0, Math.max(forHeight, forWidth));
+    // Margen de profundidad: al girar, el cuerpo se acerca a la cámara y crece en pantalla.
+    camera.position.set(0, 0, Math.max(forHeight + fitRadius * 0.35, forWidth));
     camera.updateProjectionMatrix();
   }
   new ResizeObserver(fit).observe(stage);
@@ -161,6 +175,7 @@ function createGragas() {
 /* ---------- Arranque ---------- */
 
 loadRank();
+createStream();
 
 let drawGragas = null;
 try {
