@@ -3,7 +3,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const TARGET_LP = 1000;
 const TWITCH_CHANNEL = 'melchor9';
-const SKINS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 29, 39];
+const MEME_COUNT = 50;
+const MEME_SWAP_MS = 2000;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const random = (min, max) => min + Math.random() * (max - min);
 const byId = (id) => document.getElementById(id);
@@ -48,32 +49,61 @@ function createStream() {
   byId('stream').append(player);
 }
 
-/* ---------- Imágenes borrosas orbitando ---------- */
+/* ---------- Memes borrosos orbitando ---------- */
 
-function createFloaters() {
+// Baraja continua: no se repite ningún meme hasta haber pasado por los 50.
+function createMemeQueue() {
+  let queue = [];
+  return () => {
+    if (queue.length === 0) {
+      queue = Array.from({ length: MEME_COUNT }, (_, i) => String(i + 1).padStart(2, '0'))
+        .sort(() => Math.random() - 0.5);
+    }
+    return `assets/memes/${queue.pop()}.webp`;
+  };
+}
+
+function createFloaters(nextMeme) {
   const layer = byId('floaters');
   const narrow = innerWidth < 700;
-  const pool = [...SKINS].sort(() => Math.random() - 0.5);
-  const count = narrow ? 9 : 15;
+  const count = narrow ? 12 : 15;
 
-  return Array.from({ length: count }, (_, i) => {
+  return Array.from({ length: count }, () => {
     const img = new Image();
-    img.src = `assets/skins/${pool[i % pool.length]}.jpg`;
+    const opacity = random(0.7, 0.95).toFixed(2);
+    img.src = nextMeme();
     img.alt = '';
-    img.width = narrow ? random(70, 130) : random(110, 230);
-    img.style.filter = `blur(${random(3, 8).toFixed(1)}px)`;
-    img.style.opacity = random(0.6, 0.95).toFixed(2);
+    img.width = narrow ? random(90, 150) : random(130, 260);
+    img.style.filter = `blur(${random(1.5, 3.5).toFixed(1)}px)`;
+    img.style.opacity = opacity;
     layer.append(img);
     return {
       img,
+      opacity,
       angle: random(0, Math.PI * 2),
       orbit: random(0.08, 0.2) * (Math.random() < 0.5 ? -1 : 1),
-      radiusX: random(0.2, 0.62),
-      radiusY: random(0.2, 0.62),
+      radiusX: random(0.15, narrow ? 0.45 : 0.62),
+      radiusY: random(0.15, narrow ? 0.45 : 0.62),
       tilt: random(0, 360),
       spin: random(14, 60) * (Math.random() < 0.5 ? -1 : 1),
     };
   });
+}
+
+// Solo hay unos pocos en pantalla a la vez, así que se van relevando para que salgan todos.
+function swapMemes(floaters, nextMeme) {
+  setInterval(() => {
+    const floater = floaters[Math.floor(Math.random() * floaters.length)];
+    const incoming = new Image();
+    incoming.onload = () => {
+      floater.img.style.opacity = '0';
+      setTimeout(() => {
+        floater.img.src = incoming.src;
+        floater.img.style.opacity = floater.opacity;
+      }, 500);
+    };
+    incoming.src = nextMeme();
+  }, MEME_SWAP_MS);
 }
 
 function updateFloaters(floaters, delta) {
@@ -210,7 +240,9 @@ try {
   showGragasFallback();
 }
 
-const floaters = createFloaters();
+const nextMeme = createMemeQueue();
+const floaters = createFloaters(nextMeme);
+if (!reduceMotion) swapMemes(floaters, nextMeme);
 let last = performance.now();
 
 updateFloaters(floaters, 0);
