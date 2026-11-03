@@ -94,7 +94,8 @@ function showGragasFallback() {
   img.src = 'assets/skins/0.jpg';
   img.alt = 'Gragas';
   img.className = 'fallback';
-  byId('gragas').replaceWith(img);
+  byId('gragas').remove();
+  byId('stage').append(img);
 }
 
 function createGragas() {
@@ -122,17 +123,24 @@ function createGragas() {
   let fitHeight = 1;
 
   function fit() {
-    const { clientWidth: width, clientHeight: height } = stage;
+    const { clientWidth: width, clientHeight: height } = canvas;
+    const box = stage.getBoundingClientRect();
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    const halfFov = THREE.MathUtils.degToRad(camera.fov / 2);
-    const forHeight = (fitHeight / 2) / Math.tan(halfFov);
-    const forWidth = fitRadius / (Math.tan(halfFov) * camera.aspect);
-    // Margen de profundidad: al girar, el cuerpo se acerca a la cámara y crece en pantalla.
-    camera.position.set(0, 0, Math.max(forHeight + fitRadius * 0.35, forWidth));
+
+    // Gragas se encuadra en el hueco central, aunque el lienzo cubra toda la pantalla.
+    const worldPerPixel = Math.max(fitHeight / box.height, (fitRadius * 2) / box.width);
+    const distance = (worldPerPixel * height) / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    camera.position.set(
+      (width / 2 - (box.left + box.width / 2)) * worldPerPixel,
+      (box.top + box.height / 2 - height / 2) * worldPerPixel,
+      distance,
+    );
     camera.updateProjectionMatrix();
   }
-  new ResizeObserver(fit).observe(stage);
+  const resizeObserver = new ResizeObserver(fit);
+  resizeObserver.observe(stage);
+  resizeObserver.observe(canvas);
 
   new GLTFLoader().load('assets/gragas.glb', (gltf) => {
     const model = gltf.scene;
@@ -158,12 +166,30 @@ function createGragas() {
     model.position.set(-center.x * scale, -(box.min.y + height / 2) * scale, -center.z * scale);
     spinner.add(model);
 
-    fitHeight = 2.15;
+    fitHeight = 2.5;
     fitRadius = radius * scale;
     fit();
   }, undefined, showGragasFallback);
 
-  canvas.addEventListener('click', () => { extraSpin = Math.min(extraSpin + 9, 30); });
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+
+  function isOverGragas(event) {
+    const rect = canvas.getBoundingClientRect();
+    pointer.set(
+      ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      -((event.clientY - rect.top) / rect.height) * 2 + 1,
+    );
+    raycaster.setFromCamera(pointer, camera);
+    return raycaster.intersectObject(spinner, true).length > 0;
+  }
+
+  canvas.addEventListener('pointermove', (event) => {
+    canvas.style.cursor = isOverGragas(event) ? 'pointer' : '';
+  });
+  canvas.addEventListener('click', (event) => {
+    if (isOverGragas(event)) extraSpin = Math.min(extraSpin + 9, 30);
+  });
 
   return (delta) => {
     extraSpin *= Math.exp(-delta * 1.4);

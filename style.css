@@ -70,7 +70,10 @@ body {
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: clamp(4px, 1vh, 12px);
   padding: clamp(12px, 2.5vh, 28px) clamp(16px, 4vw, 56px) 0;
+  pointer-events: none; /* Los clics atraviesan hasta Gragas; el directo y la barra los recuperan */
 }
+.stream,
+.meter { pointer-events: auto; }
 
 h1 {
   font: 400 min(6.4vw, 12vh)/1.02 "Chango", "Barlow Condensed", sans-serif;
@@ -143,12 +146,12 @@ h1 {
     max-height: 100%;
   }
 }
-.stage canvas {
-  position: absolute;
+/* Ocupa toda la pantalla para que Gragas pase por detrás del directo y la barra sin cortes */
+#gragas {
+  position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  cursor: pointer;
   touch-action: manipulation;
 }
 .stage .fallback {
