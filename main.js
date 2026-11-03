@@ -22,13 +22,23 @@ const byId = (id) => document.getElementById(id);
 const formatPercent = (value) =>
   value.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
+// Los textos de encima de la barra se apartan cuando Gragas baila justo debajo de ellos.
+function placeDancer(progress) {
+  byId('dancer').style.setProperty('--lp', `${progress}%`);
+  const meter = document.querySelector('.meter');
+  meter.classList.toggle('dancer-left', progress < 16);
+  meter.classList.toggle('dancer-right', progress > 72);
+}
+
 function renderRank({ tier, lp }) {
   const left = Math.max(0, TARGET_LP - lp);
   byId('lp').textContent = `${lp} LP`;
   byId('tier').textContent = tier;
   byId('left-lp').textContent = `${left} LP`;
   byId('left-pct').textContent = `${formatPercent((left / TARGET_LP) * 100)} %`;
-  byId('fill').style.width = `${Math.min(100, (lp / TARGET_LP) * 100)}%`;
+  const progress = Math.min(100, (lp / TARGET_LP) * 100);
+  byId('fill').style.width = `${progress}%`;
+  placeDancer(progress);
   byId('track').setAttribute('aria-valuenow', String(Math.min(TARGET_LP, lp)));
   if (left === 0) {
     document.querySelector('.missing').textContent = '¡Ha llegado a los 1000 LP!';
@@ -478,6 +488,53 @@ function createGragas({ onPotensia, onExplosion }) {
   };
 }
 
+/* ---------- Gragas bailando en la barra ---------- */
+
+function createDancer() {
+  const canvas = byId('dancer');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -1000, 1000);
+  let mixer = null;
+
+  const resize = () => renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+  new ResizeObserver(resize).observe(canvas);
+  resize();
+
+  new GLTFLoader().load('assets/gragas-dance.glb', (gltf) => {
+    scene.add(gltf.scene);
+    mixer = new THREE.AnimationMixer(gltf.scene);
+    const clip = gltf.animations[0];
+    mixer.clipAction(clip).play();
+
+    // El encuadre abarca todo el baile, para que no se salga en ningún paso.
+    const bounds = new THREE.Box3();
+    for (let i = 0; i < 12; i++) {
+      mixer.setTime((clip.duration * i) / 12);
+      gltf.scene.updateMatrixWorld(true);
+      bounds.expandByObject(gltf.scene, true);
+    }
+    mixer.setTime(0);
+
+    const center = bounds.getCenter(new THREE.Vector3());
+    const size = bounds.getSize(new THREE.Vector3());
+    const half = Math.max(size.x, size.y, size.z) / 2;
+    camera.left = center.x - half;
+    camera.right = center.x + half;
+    camera.bottom = bounds.min.y;
+    camera.top = bounds.min.y + half * 2;
+    camera.position.set(0, 0, 500);
+    camera.updateProjectionMatrix();
+  });
+
+  return (delta, drunkLevel) => {
+    mixer?.update(reduceMotion ? 0 : delta * (1 + drunkLevel * 1.5));
+    renderer.render(scene, camera);
+  };
+}
+
 /* ---------- Arranque ---------- */
 
 loadRank();
@@ -502,6 +559,13 @@ try {
   showGragasFallback();
 }
 
+let drawDancer = null;
+try {
+  drawDancer = createDancer();
+} catch {
+  byId('dancer').remove();
+}
+
 let last = performance.now();
 
 updateFloaters(floaters, 0);
@@ -512,5 +576,6 @@ requestAnimationFrame(function tick(now) {
   if (!reduceMotion) updateFloaters(floaters, delta);
   drunkMode.update(delta);
   drawGragas?.(delta, drunkMode.level);
+  drawDancer?.(delta, drunkMode.level);
   requestAnimationFrame(tick);
 });

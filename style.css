@@ -198,6 +198,25 @@ h1 {
   object-fit: contain;
 }
 
+/* Gragas bailando de pie sobre la barra, justo donde llegan los LP */
+.track-wrap { position: relative; }
+
+#dancer {
+  --size: clamp(76px, 11vh, 104px);
+  position: absolute;
+  bottom: 100%;
+  left: max(calc(var(--size) / 2 - 12px), var(--lp));
+  width: var(--size);
+  height: var(--size);
+  margin-bottom: -3px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: left 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.meter.dancer-left .meter-labels { padding-left: clamp(70px, 10vh, 96px); }
+.meter.dancer-right .meter-labels { padding-right: clamp(70px, 10vh, 96px); }
+
 .track {
   position: relative;
   height: clamp(26px, 5vh, 48px);
