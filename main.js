@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const TARGET_LP = 1000;
 const TWITCH_CHANNEL = 'melchor9';
 const MEME_COUNT = 50;
-const MEME_SWAP_MS = 2000;
+const MEME_FADE_MS = 1200;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const random = (min, max) => min + Math.random() * (max - min);
 const byId = (id) => document.getElementById(id);
@@ -63,7 +63,7 @@ function createMemeQueue() {
   };
 }
 
-function createFloaters(nextMeme) {
+function createFloaters() {
   const layer = byId('floaters');
   const narrow = innerWidth < 700;
   const count = narrow ? 12 : 15;
@@ -71,10 +71,9 @@ function createFloaters(nextMeme) {
   return Array.from({ length: count }, () => {
     const img = new Image();
     const opacity = random(0.7, 0.95).toFixed(2);
-    img.src = nextMeme();
     img.alt = '';
     img.width = narrow ? random(110, 180) : random(170, 320);
-    img.style.opacity = opacity;
+    img.style.opacity = '0';
     layer.append(img);
     return {
       img,
@@ -89,20 +88,31 @@ function createFloaters(nextMeme) {
   });
 }
 
-// Solo hay unos pocos en pantalla a la vez, así que se van relevando para que salgan todos.
-function swapMemes(floaters, nextMeme) {
-  setInterval(() => {
-    const floater = floaters[Math.floor(Math.random() * floaters.length)];
-    const incoming = new Image();
-    incoming.onload = () => {
+// Cada meme aparece, se queda un rato, se desvanece y deja su sitio al siguiente de la baraja.
+function cycleMeme(floater, nextMeme) {
+  const incoming = new Image();
+  incoming.onload = () => {
+    floater.img.src = incoming.src;
+    floater.angle = random(0, Math.PI * 2);
+    floater.img.style.opacity = floater.opacity;
+    setTimeout(() => {
       floater.img.style.opacity = '0';
-      setTimeout(() => {
-        floater.img.src = incoming.src;
-        floater.img.style.opacity = floater.opacity;
-      }, 500);
-    };
-    incoming.src = nextMeme();
-  }, MEME_SWAP_MS);
+      setTimeout(() => cycleMeme(floater, nextMeme), MEME_FADE_MS);
+    }, MEME_FADE_MS + random(3000, 8000));
+  };
+  incoming.onerror = () => setTimeout(() => cycleMeme(floater, nextMeme), MEME_FADE_MS);
+  incoming.src = nextMeme();
+}
+
+function startMemes(floaters, nextMeme) {
+  for (const floater of floaters) {
+    if (reduceMotion) {
+      floater.img.src = nextMeme();
+      floater.img.style.opacity = floater.opacity;
+    } else {
+      setTimeout(() => cycleMeme(floater, nextMeme), random(0, 4000));
+    }
+  }
 }
 
 function updateFloaters(floaters, delta) {
@@ -240,8 +250,8 @@ try {
 }
 
 const nextMeme = createMemeQueue();
-const floaters = createFloaters(nextMeme);
-if (!reduceMotion) swapMemes(floaters, nextMeme);
+const floaters = createFloaters();
+startMemes(floaters, nextMeme);
 let last = performance.now();
 
 updateFloaters(floaters, 0);
