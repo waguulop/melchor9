@@ -49,7 +49,7 @@ function createStream() {
   byId('stream').append(player);
 }
 
-/* ---------- Memes borrosos orbitando ---------- */
+/* ---------- Memes orbitando ---------- */
 
 // Baraja continua: no se repite ningún meme hasta haber pasado por los 50.
 function createMemeQueue() {
@@ -73,8 +73,7 @@ function createFloaters(nextMeme) {
     const opacity = random(0.7, 0.95).toFixed(2);
     img.src = nextMeme();
     img.alt = '';
-    img.width = narrow ? random(90, 150) : random(130, 260);
-    img.style.filter = `blur(${random(1.5, 3.5).toFixed(1)}px)`;
+    img.width = narrow ? random(110, 180) : random(170, 320);
     img.style.opacity = opacity;
     layer.append(img);
     return {
