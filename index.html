@@ -31,6 +31,7 @@
     <div class="arena">
       <div class="stage" id="stage">
         <p class="hint">Dale click al Gragas para darle potensia</p>
+        <p class="drunk-meter" id="drunk-meter" hidden>Borrachera: <span id="drunk-value">0</span>&nbsp;%</p>
       </div>
       <div class="stream" id="stream"></div>
     </div>
@@ -58,6 +59,9 @@
       </div>
     </section>
   </main>
+
+  <div class="fx" id="fx" aria-hidden="true"></div>
+  <p class="wasted" id="wasted" role="status">Vete a casa, Sancho Panza</p>
 
   <script type="module" src="main.js"></script>
 </body>
