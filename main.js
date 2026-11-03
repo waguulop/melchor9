@@ -31,8 +31,7 @@ async function loadRank() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     renderRank(await response.json());
   } catch {
-    // El HTML ya trae el último dato conocido; se avisa de que puede estar desfasado.
-    byId('status').textContent = 'último dato guardado';
+    // Sin datos de OP.GG se queda el último valor conocido que ya trae el HTML.
   }
 }
 
