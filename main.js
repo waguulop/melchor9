@@ -55,6 +55,65 @@ async function loadRank() {
   }
 }
 
+/* ---------- Estadísticas con Gragas ---------- */
+
+const formatCount = (value) => value.toLocaleString('es-ES', { useGrouping: 'always' });
+const formatMillions = (value) =>
+  `${(value / 1e6).toLocaleString('es-ES', { maximumFractionDigits: 1 })}\u00a0M`;
+
+function renderTicker(stats) {
+  const rows = [
+    ['Con Gragas esta temporada:', ''],
+    [formatCount(stats.kills), 'kills'],
+    [formatCount(stats.deaths), 'muertes'],
+    [formatCount(stats.assists), 'asistencias'],
+    [formatCount(stats.games), 'partidas'],
+    [formatCount(stats.wins), 'victorias'],
+    [formatCount(stats.losses), 'derrotas'],
+    [formatCount(stats.doubleKills), 'dobles'],
+    [formatCount(stats.tripleKills), 'triples'],
+    [formatCount(stats.quadraKills), 'cuádruples'],
+    [formatCount(stats.pentaKills), stats.pentaKills === 1 ? 'penta' : 'pentas'],
+    [`~${formatMillions(stats.damage)}`, 'de daño'],
+    [`~${formatMillions(stats.gold)}`, 'de oro'],
+    [`~${formatCount(Math.round(stats.minions / 1000) * 1000)}`, 'súbditos'],
+  ];
+
+  const track = byId('ticker-track');
+  const addCopy = (hidden) => {
+    const copy = document.createElement('div');
+    if (hidden) copy.setAttribute('aria-hidden', 'true');
+    for (const [value, label] of rows) {
+      const item = document.createElement('span');
+      if (label) {
+        const number = document.createElement('strong');
+        number.textContent = value;
+        item.append(number, ` ${label}`);
+      } else {
+        item.textContent = value;
+      }
+      copy.append(item);
+    }
+    copy.style.display = 'flex';
+    track.append(copy);
+  };
+
+  // Dos copias seguidas: al llegar a la mitad el bucle empalma sin que se note.
+  addCopy(false);
+  addCopy(true);
+  byId('ticker').hidden = false;
+}
+
+async function loadStats() {
+  try {
+    const response = await fetch('/api/gragas');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    renderTicker(await response.json());
+  } catch {
+    // Sin datos de OP.GG el rótulo sigue oculto: mejor nada que números rotos.
+  }
+}
+
 /* ---------- Directo de Twitch ---------- */
 
 function createStream() {
@@ -538,6 +597,7 @@ function createDancer() {
 /* ---------- Arranque ---------- */
 
 loadRank();
+loadStats();
 createStream();
 
 const nextMeme = createMemeQueue();

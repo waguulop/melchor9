@@ -4,6 +4,7 @@ Web meme: Gragas en 3D dando vueltas y una barra con los LP de [Sancho Panza#133
 
 - `index.html`, `style.css`, `main.js`: la página (three.js desde CDN, sin build).
 - `api/lp.js`: función de Vercel que lee los LP de OP.GG (caché de 10 minutos).
+- `api/gragas.js`: función de Vercel que lee las estadísticas con Gragas de OP.GG (caché de 10 minutos).
 - `tools/skn2glb.py`: convierte la malla y la textura de CommunityDragon en `assets/gragas.glb`.
 
 - `assets/gragas-dance.glb`: el modelo con esqueleto y su animación `Dance`, extraído de [Khada](https://modelviewer.lol/model-viewer?id=79000).

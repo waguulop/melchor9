@@ -36,31 +36,37 @@
       <div class="stream" id="stream"></div>
     </div>
 
-    <section class="meter dancer-left" aria-label="Progreso hacia los 1000 LP">
-      <div class="meter-labels">
-        <p class="current">
-          <img src="assets/master.png" alt="" width="44" height="44">
-          <span><strong id="lp">19 LP</strong> en <span id="tier">Maestro</span></span>
-        </p>
-        <p class="missing">Le faltan <strong id="left-lp">981 LP</strong> · <strong id="left-pct">98,1&nbsp;%</strong></p>
-      </div>
+    <div class="bottom">
+      <aside class="ticker" id="ticker" aria-label="Estadísticas con Gragas esta temporada" hidden>
+        <div class="ticker-track" id="ticker-track"></div>
+      </aside>
 
-      <div class="track-wrap">
-        <canvas id="dancer" aria-hidden="true" style="--lp:1.9%"></canvas>
-        <div class="track" id="track" role="progressbar" aria-label="LP conseguidos sobre 1000"
-             aria-valuemin="0" aria-valuemax="1000" aria-valuenow="19">
-          <div class="fill" id="fill" style="width:1.9%"></div>
-          <span class="tick" style="left:25%"></span>
-          <span class="tick" style="left:50%"></span>
-          <span class="tick" style="left:75%"></span>
+      <section class="meter dancer-left" aria-label="Progreso hacia los 1000 LP">
+        <div class="meter-labels">
+          <p class="current">
+            <img src="assets/master.png" alt="" width="44" height="44">
+            <span><strong id="lp">19 LP</strong> en <span id="tier">Maestro</span></span>
+          </p>
+          <p class="missing">Le faltan <strong id="left-lp">981 LP</strong> · <strong id="left-pct">98,1&nbsp;%</strong></p>
         </div>
-      </div>
 
-      <div class="meter-foot">
-        <p><a href="https://op.gg/es/lol/summoners/euw/Sancho%20Panza-1337" target="_blank" rel="noopener">Sancho Panza#1337 en OP.GG</a> · Meta: 1000 LP</p>
-        <p class="credit">Ver otras webs de djguilley: <a href="https://rockola-one.vercel.app" target="_blank" rel="noopener">Rockola</a> · <a href="https://tcg-universal-beta.vercel.app" target="_blank" rel="noopener">Universal TCG</a> · Made by djguilley</p>
-      </div>
-    </section>
+        <div class="track-wrap">
+          <canvas id="dancer" aria-hidden="true" style="--lp:1.9%"></canvas>
+          <div class="track" id="track" role="progressbar" aria-label="LP conseguidos sobre 1000"
+               aria-valuemin="0" aria-valuemax="1000" aria-valuenow="19">
+            <div class="fill" id="fill" style="width:1.9%"></div>
+            <span class="tick" style="left:25%"></span>
+            <span class="tick" style="left:50%"></span>
+            <span class="tick" style="left:75%"></span>
+          </div>
+        </div>
+
+        <div class="meter-foot">
+          <p><a href="https://op.gg/es/lol/summoners/euw/Sancho%20Panza-1337" target="_blank" rel="noopener">Sancho Panza#1337 en OP.GG</a> · Meta: 1000 LP</p>
+          <p class="credit">Ver otras webs de djguilley: <a href="https://rockola-one.vercel.app" target="_blank" rel="noopener">Rockola</a> · <a href="https://tcg-universal-beta.vercel.app" target="_blank" rel="noopener">Universal TCG</a> · Made by djguilley</p>
+        </div>
+      </section>
+    </div>
   </main>
 
   <div class="fx" id="fx" aria-hidden="true"></div>

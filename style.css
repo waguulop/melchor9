@@ -198,6 +198,35 @@ h1 {
   object-fit: contain;
 }
 
+/* Rótulo de estadísticas */
+.ticker {
+  margin-inline: calc(clamp(16px, 4vw, 56px) * -1);
+  padding-block: 5px;
+  overflow: hidden;
+  background: var(--foam);
+  color: var(--malt);
+  border-top: 3px solid var(--malt);
+  font-size: 0.95em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 55s linear infinite;
+}
+
+.ticker-track span { padding-right: 2.5em; }
+.ticker-track strong { font: 400 1.05em/1 "Chango", sans-serif; }
+
+@keyframes ticker-scroll {
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+}
+
 /* Gragas bailando de pie sobre la barra, justo donde llegan los LP */
 .track-wrap { position: relative; }
 
