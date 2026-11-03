@@ -230,7 +230,8 @@ h1 {
 .credit {
   margin-left: auto;
   font-size: 0.85em;
-  opacity: 0.8;
+  text-align: right;
+  opacity: 0.85;
 }
 
 .meter-foot a {
